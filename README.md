@@ -18,12 +18,14 @@ Elegant and powerful Instagram reels downloader for seamless content extraction.
 ```typescript
 // One-line usage
 import reelflow from 'reelflow';
-const video = await reelflow.getVideoInfo('https://www.instagram.com/reels/CxKp7');
+const url = 'https://www.instagram.com/reels/CxKp7';
+const video = await reelflow.getVideoInfo(url);
 console.log(video.videoUrl); // Direct download URL
 
 // With error handling
 try {
-  const { videoUrl, width, height } = await reelflow.getVideoInfo('https://www.instagram.com/reel/CxKp7');
+  const url = 'https://www.instagram.com/reel/CxKp7';
+  const { videoUrl, width, height } = await reelflow.getVideoInfo(url);
   console.log(`Video: ${videoUrl} (${width}x${height})`);
 } catch (error) {
   console.error('Failed to get video:', error.message);
@@ -53,7 +55,7 @@ import reelflow, { ReelflowError } from 'reelflow';
 
 async function downloadVideo(url: string) {
   try {
-    const video = await reelflow.getVideoInfo('https://www.instagram.com/reel/CxKp7');
+    const video = await reelflow.getVideoInfo(url);
     console.log('URL:', video.videoUrl);
     console.log('Size:', `${video.width}x${video.height}`);
     return video;
@@ -66,7 +68,8 @@ async function downloadVideo(url: string) {
 }
 
 // Use it
-await downloadVideo('https://www.instagram.com/reels/CxKp7');
+const reelUrl = 'https://www.instagram.com/reels/CxKp7';
+await downloadVideo(reelUrl);
 ```
 </details>
 
@@ -78,7 +81,7 @@ const { default: reelflow } = require('reelflow');
 
 async function downloadVideo(url) {
   try {
-    const video = await reelflow.getVideoInfo('https://www.instagram.com/reel/CxKp7');
+    const video = await reelflow.getVideoInfo(url);
     console.log('URL:', video.videoUrl);
     return video;
   } catch (error) {
@@ -86,7 +89,8 @@ async function downloadVideo(url) {
   }
 }
 
-downloadVideo('https://www.instagram.com/reels/CxKp7');
+const reelUrl = 'https://www.instagram.com/reels/CxKp7';
+downloadVideo(reelUrl);
 ```
 </details>
 
@@ -98,7 +102,7 @@ import reelflow from 'reelflow';
 
 const downloadVideo = async (url) => {
   try {
-    const { videoUrl, width, height } = await reelflow.getVideoInfo('https://www.instagram.com/reel/CxKp7');
+    const { videoUrl, width, height } = await reelflow.getVideoInfo(url);
     console.log('Video info:', { videoUrl, width, height });
     return videoUrl;
   } catch (error) {
@@ -106,7 +110,8 @@ const downloadVideo = async (url) => {
   }
 };
 
-downloadVideo('https://www.instagram.com/reels/CxKp7');
+const reelUrl = 'https://www.instagram.com/reels/CxKp7';
+downloadVideo(reelUrl);
 ```
 </details>
 
@@ -117,7 +122,8 @@ downloadVideo('https://www.instagram.com/reels/CxKp7');
 import reelflow, { ReelflowError } from 'reelflow';
 
 try {
-  const video = await reelflow.getVideoInfo('https://www.instagram.com/reel/CxKp7');
+  const url = 'https://www.instagram.com/reel/CxKp7';
+  const video = await reelflow.getVideoInfo(url);
 } catch (error) {
   if (error instanceof ReelflowError) {
     switch (error.status) {

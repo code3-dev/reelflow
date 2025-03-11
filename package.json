@@ -1,6 +1,6 @@
 {
   "name": "reelflow",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Elegant and powerful Instagram video downloader for seamless content extraction",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
