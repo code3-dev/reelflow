@@ -1,23 +1,24 @@
 import axios from 'axios';
 import { load } from 'cheerio';
-import {
+import type {
   VideoInfo,
   GraphQLResponse,
-  InstagramError
-} from './types';
+  MediaData
+} from './types.js';
+import { InstagramError } from './types.js';
 import {
-  getPostIdFromUrl,
-  validateInstagramURL,
-  encodeGraphqlRequestData,
   formatGraphqlJson,
-  formatPageJson
-} from './utils';
+  formatPageJson,
+  getPostIdFromUrl,
+  encodeGraphqlRequestData,
+  validateInstagramURL
+} from './utils.js';
 import {
   INSTAGRAM_BASE_URL,
   INSTAGRAM_ENDPOINTS,
   GRAPHQL_HEADERS,
   WEBPAGE_HEADERS
-} from './constants';
+} from './constants.js';
 
 export class InstagramDownloader {
   private async getPostPageHTML(postId: string): Promise<string> {

@@ -1,6 +1,6 @@
-import { CheerioAPI } from 'cheerio';
-import querystring from 'querystring';
-import { VideoInfo, MediaData } from './types';
+import type { CheerioAPI } from 'cheerio';
+import { stringify } from 'querystring';
+import type { VideoInfo, MediaData } from './types.js';
 
 export function getPostIdFromUrl(postUrl: string): string | undefined {
   const postRegex = /^https:\/\/(?:www\.)?instagram\.com\/p\/([a-zA-Z0-9_-]+)\/?/;
@@ -48,7 +48,7 @@ export function encodeGraphqlRequestData(shortcode: string): string {
     server_timestamps: 'true',
     doc_id: '10015901848480474',
   };
-  return querystring.stringify(requestData);
+  return stringify(requestData);
 }
 
 export function formatGraphqlJson(data: MediaData): VideoInfo {
