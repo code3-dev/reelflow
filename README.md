@@ -16,20 +16,21 @@ Elegant and powerful Instagram reels downloader for seamless content extraction.
 ## 🚀 Simple Usage
 
 ```typescript
-// One-line usage
 import reelflow from 'reelflow';
-const url = 'https://www.instagram.com/reels/CxKp7';
-const video = await reelflow.getVideoInfo(url);
-console.log(video.videoUrl); // Direct download URL
 
-// With error handling
-try {
-  const url = 'https://www.instagram.com/reel/CxKp7';
-  const { videoUrl, width, height } = await reelflow.getVideoInfo(url);
-  console.log(`Video: ${videoUrl} (${width}x${height})`);
-} catch (error) {
-  console.error('Failed to get video:', error.message);
+// Using async function
+async function downloadReel() {
+  try {
+    const url = 'https://www.instagram.com/reels/CxKp7';
+    const video = await reelflow.getVideoInfo(url);
+    console.log(video.videoUrl); // Direct download URL
+  } catch (error: unknown) {
+    console.error('Failed to get video:', error instanceof Error ? error.message : String(error));
+  }
 }
+
+// Run it
+downloadReel();
 ```
 
 ## ✨ Features
@@ -62,14 +63,28 @@ async function downloadVideo(url: string) {
   } catch (error: unknown) {
     if (error instanceof ReelflowError) {
       console.error(`Failed (${error.status}):`, error.message);
+      throw error;
     }
-    throw error;
+    // Handle other types of errors
+    console.error('Unexpected error:', error instanceof Error ? error.message : String(error));
+    throw new ReelflowError('Unexpected error occurred', 500);
   }
 }
 
-// Use it
-const reelUrl = 'https://www.instagram.com/reels/CxKp7';
-await downloadVideo(reelUrl);
+// Use it in an async function
+async function main() {
+  try {
+    const reelUrl = 'https://www.instagram.com/reels/CxKp7';
+    await downloadVideo(reelUrl);
+  } catch (error: unknown) {
+    if (error instanceof ReelflowError) {
+      console.error(`Error ${error.status}:`, error.message);
+    }
+  }
+}
+
+// Run it
+main().catch(console.error);
 ```
 </details>
 
@@ -90,7 +105,7 @@ async function downloadVideo(url) {
 }
 
 const reelUrl = 'https://www.instagram.com/reels/CxKp7';
-downloadVideo(reelUrl);
+downloadVideo(reelUrl).catch(console.error);
 ```
 </details>
 
@@ -111,7 +126,7 @@ const downloadVideo = async (url) => {
 };
 
 const reelUrl = 'https://www.instagram.com/reels/CxKp7';
-downloadVideo(reelUrl);
+downloadVideo(reelUrl).catch(console.error);
 ```
 </details>
 
@@ -121,19 +136,29 @@ downloadVideo(reelUrl);
 ```typescript
 import reelflow, { ReelflowError } from 'reelflow';
 
-try {
-  const url = 'https://www.instagram.com/reel/CxKp7';
-  const video = await reelflow.getVideoInfo(url);
-} catch (error) {
-  if (error instanceof ReelflowError) {
-    switch (error.status) {
-      case 400: console.error('Invalid URL format'); break;
-      case 401: console.error('Video is not accessible'); break;
-      case 404: console.error('Video not found'); break;
-      default: console.error(`Error ${error.status}:`, error.message);
+async function handleReelDownload() {
+  try {
+    const url = 'https://www.instagram.com/reel/CxKp7';
+    const video = await reelflow.getVideoInfo(url);
+    return video;
+  } catch (error: unknown) {
+    if (error instanceof ReelflowError) {
+      switch (error.status) {
+        case 400: console.error('Invalid URL format'); break;
+        case 401: console.error('Video is not accessible'); break;
+        case 404: console.error('Video not found'); break;
+        default: console.error(`Error ${error.status}:`, error.message);
+      }
+      throw error;
     }
+    // Handle unexpected errors
+    console.error('Unexpected error:', error instanceof Error ? error.message : String(error));
+    throw new ReelflowError('Unexpected error occurred', 500);
   }
 }
+
+// Run it
+handleReelDownload().catch(console.error);
 ```
 </details>
 
