@@ -138,9 +138,11 @@ export class InstagramDownloader {
       let username: string | undefined = undefined;
 
       // Try to extract username from likes format first (e.g., "2,420 likes, 13 comments - almas.graphi on...")
-      const likesMatch = rawDescription.match(/- ([^\ ]+) on/);
-      if (likesMatch) {
-        username = likesMatch[1].trim();
+      const likesMatch = rawDescription.match(/- (.*?) on/);  // Match everything between "- " and " on"
+      if (likesMatch && likesMatch[1]) {
+        // Get the username part and remove any trailing spaces
+        username = likesMatch[1].replace(/\s+$/, '');
+
         // Extract description by removing the likes/comments/date part
         const descMatch = rawDescription.match(/^[^-]+ - [^\ ]+ on [^‎]+‎(.+)$/);
         if (descMatch) {
@@ -151,7 +153,7 @@ export class InstagramDownloader {
         // Fallback: try to extract username from description format (username: description)
         const usernameMatch = rawDescription.match(/^([^:]+):/);
         if (usernameMatch) {
-          username = usernameMatch[1].trim();
+          username = usernameMatch[1].split(' on ')[0].trim();
           // Remove username from description, quotes, and trim
           description = rawDescription.replace(/^[^:]+:\s*/, '').trim().replace(/^["']|["']$/g, '') || undefined;
         }
