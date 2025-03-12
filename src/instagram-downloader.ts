@@ -3,7 +3,8 @@ import { load } from 'cheerio';
 import type {
   VideoInfo,
   GraphQLResponse,
-  MediaData
+  MediaData,
+  InstagramMediaInfo
 } from './types.js';
 import { InstagramError } from './types.js';
 import {
@@ -95,14 +96,98 @@ export class InstagramDownloader {
       throw new InstagramError('Could not extract post ID from URL', 400);
     }
 
+    // Get the HTML first to extract media info
+    const html = await this.getPostPageHTML(postId);
+    const mediaInfo = await this.extractMediaInfo(html);
+
     // Try webpage method first
     let videoInfo = await this.getVideoInfoFromHTML(postId);
-    if (videoInfo) return videoInfo;
+    if (videoInfo) {
+      return {
+        ...videoInfo,
+        username: mediaInfo.username,
+        description: mediaInfo.description,
+        thumbnail: mediaInfo.thumbnail
+      };
+    }
 
     // Fallback to GraphQL method
     videoInfo = await this.getVideoInfoFromGraphQL(postId);
-    if (videoInfo) return videoInfo;
+    if (videoInfo) {
+      return {
+        ...videoInfo,
+        username: mediaInfo.username,
+        description: mediaInfo.description,
+        thumbnail: mediaInfo.thumbnail
+      };
+    }
 
     throw new InstagramError('Could not fetch video information', 404);
+  }
+
+  private async extractMediaInfo(html: string): Promise<InstagramMediaInfo> {
+    try {
+      const $ = load(html);
+
+      // Get thumbnail URL
+      const thumbnail = $('meta[property="og:image"]').attr('content') || undefined;
+
+      // Get description and username from meta description
+      const rawDescription = $('meta[property="og:description"]').attr('content') || '';
+      let description: string | undefined = undefined;
+      let username: string | undefined = undefined;
+
+      // Try to extract username from likes format first (e.g., "2,420 likes, 13 comments - almas.graphi on...")
+      const likesMatch = rawDescription.match(/- ([^\ ]+) on/);
+      if (likesMatch) {
+        username = likesMatch[1].trim();
+        // Extract description by removing the likes/comments/date part
+        const descMatch = rawDescription.match(/^[^-]+ - [^\ ]+ on [^‎]+‎(.+)$/);
+        if (descMatch) {
+          // Remove quotes and trim
+          description = descMatch[1].trim().replace(/^["']|["']$/g, '') || undefined;
+        }
+      } else {
+        // Fallback: try to extract username from description format (username: description)
+        const usernameMatch = rawDescription.match(/^([^:]+):/);
+        if (usernameMatch) {
+          username = usernameMatch[1].trim();
+          // Remove username from description, quotes, and trim
+          description = rawDescription.replace(/^[^:]+:\s*/, '').trim().replace(/^["']|["']$/g, '') || undefined;
+        }
+      }
+
+      // Extract video or image URL
+      const videoUrl = $('meta[property="og:video"]').attr('content');
+      const videoWidth = $('meta[property="og:video:width"]').attr('content');
+      const videoHeight = $('meta[property="og:video:height"]').attr('content');
+
+      if (videoUrl && videoWidth && videoHeight) {
+        return {
+          url: videoUrl,
+          type: 'video',
+          width: videoWidth,
+          height: videoHeight,
+          username,
+          thumbnail,
+          description,
+        };
+      }
+
+      const imageUrl = $('meta[property="og:image"]').attr('content');
+      if (imageUrl) {
+        return {
+          url: imageUrl,
+          type: 'image',
+          username,
+          thumbnail,
+          description,
+        };
+      }
+
+      throw new Error('No media URL found');
+    } catch (error) {
+      throw new Error(`Failed to extract media info: ${(error as Error).message}`);
+    }
   }
 } 

@@ -2,7 +2,19 @@ export interface VideoInfo {
   width: string;
   height: string;
   videoUrl: string;
+  username?: string;
+  thumbnail?: string;
+  description?: string;
 }
+
+export interface ImageInfo {
+  url: string;
+  username?: string;
+  thumbnail?: string;
+  description?: string;
+}
+
+export type MediaInfo = VideoInfo | ImageInfo;
 
 export interface GraphQLResponse {
   data: {
@@ -33,6 +45,16 @@ export interface MediaData {
     profile_pic_url: string;
     full_name: string;
   };
+}
+
+export interface InstagramMediaInfo {
+  url: string;
+  type: 'video' | 'image';
+  width?: string;
+  height?: string;
+  username?: string;
+  thumbnail?: string;
+  description?: string;
 }
 
 export class InstagramError extends Error {
